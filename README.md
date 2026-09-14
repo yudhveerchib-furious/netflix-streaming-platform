@@ -207,7 +207,7 @@ Java
 Spring Boot
 Spring Data JPA
 Hibernate
-MySQL
+PostgresSQL
 Redis
 Apache Kafka
 ZooKeeper
