@@ -1,0 +1,16 @@
+# IntelliJ
+.idea/
+
+# Maven
+target/
+
+# Spring Boot configuration
+application.properties
+application.yml
+application.yaml
+
+# Environment variables
+.env
+
+# Docker Compose
+docker-compose.yml
