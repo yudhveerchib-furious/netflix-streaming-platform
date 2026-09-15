@@ -8,7 +8,7 @@ The project is being developed to understand how a real-world video streaming sy
 
 The project is currently under development.
 
-So far, I have completed the initial project setup and started building the **Content Service**, including the movie model, DTOs, and controller structure.
+So far, I have completed the initial project setup and started building the **Content Service**, including the movie model, DTOs, controller, service, and repository layers.
 
 ---
 
@@ -37,7 +37,7 @@ The project uses Docker to run the required infrastructure services locally.
 
 The current setup includes:
 
-MySQL – Stores structured movie/catalog information.
+PostgreSQL – Stores structured movie/catalog information.
 Redis – Used for caching frequently accessed data such as streaming information.
 Apache Kafka – Used for asynchronous communication and event streaming between microservices.
 ZooKeeper – Used for Kafka coordination in the current Kafka setup.
@@ -49,10 +49,9 @@ The infrastructure is configured using docker-compose.yml.
 
 The Content Service is the first microservice currently being developed.
 
-Its responsibility is to manage the movie catalog and store movie-related metadata in MySQL.
+Its responsibility is to manage the movie catalog and store movie-related metadata in PostgreSQL.
 
-Current package structure:
-
+Current Package Structure
 content-service/
 └── src/
     └── main/
@@ -66,10 +65,16 @@ content-service/
                 │   ├── MovieRequest
                 │   └── MovieResponse
                 │
-                └── model/
-                    ├── Movie
-                    ├── Genre
-                    └── VideoStatus
+                ├── model/
+                │   ├── Movie
+                │   ├── Genre
+                │   └── VideoStatus
+                │
+                ├── repository/
+                │   └── ContentRepository
+                │
+                └── service/
+                    └── ContentService
 🎬 Movie Model
 
 The Movie entity represents the movie information stored in the database.
@@ -144,7 +149,7 @@ The Content Service currently contains:
 
 MovieRequest
 
-Used for receiving movie information from the client when creating/updating movie data.
+Used for receiving movie information from the client when creating movie data.
 
 MovieResponse
 
@@ -154,7 +159,7 @@ DTOs help keep the API layer separate from the database entity.
 
 🗃️ Database
 
-The Content Service uses MySQL to store movie metadata.
+The Content Service uses PostgreSQL to store movie metadata.
 
 The movie entity is mapped to the:
 
@@ -162,7 +167,141 @@ movies
 
 table.
 
-The database stores information about the movie, while large video files will eventually be stored separately in AWS S3.
+The database stores information about the movie, while large video files are stored separately in AWS S3.
+
+🌐 Content Service API Routes
+
+Base URL:
+
+/api/v1/movies
+Add a Movie
+POST /api/v1/movies
+
+Creates a new movie in the catalog.
+
+The movie is initially assigned:
+
+VideoStatus.PENDING
+Get All Movies
+GET /api/v1/movies
+
+Returns all movies available in the catalog.
+
+Get Movies by Genre
+GET /api/v1/movies/genre/{genre}
+
+Example:
+
+GET /api/v1/movies/genre/SCI_FI
+
+Returns all movies belonging to the specified genre.
+
+Get Movie by ID
+GET /api/v1/movies/{movieId}
+
+Example:
+
+GET /api/v1/movies/abc123
+
+Returns a specific movie using its movie ID.
+
+Search Movies by Title
+GET /api/v1/movies/search?title={title}
+
+Example:
+
+GET /api/v1/movies/search?title=inception
+
+The search uses case-insensitive partial title matching.
+
+For example, searching for:
+
+dark
+
+can return:
+
+The Dark Knight
+🔄 Video Status Flow
+
+The Content Service tracks the current state of a movie's video.
+
+PENDING
+   │
+   │ Video uploaded to S3
+   ▼
+UPLOADED
+   │
+   │ Video processed into HLS
+   ▼
+READY
+PENDING
+
+The movie has been added to the catalog, but the video has not been uploaded yet.
+
+UPLOADED
+
+The original video has been uploaded to AWS S3.
+
+The S3 object key is stored in:
+
+videoKey
+READY
+
+The video has been processed into HLS and is ready for streaming.
+
+The HLS master playlist URL is stored in:
+
+hlsUrl
+☁️ Video Metadata
+
+The Content Service stores references to video files rather than storing the actual video inside PostgreSQL.
+
+S3 Video Key
+
+videoKey
+
+Stores the S3 object key of the original video.
+
+Example:
+
+videos/inception/original.mp4
+HLS URL
+
+hlsUrl
+
+Stores the URL of the HLS master playlist used for streaming.
+
+Example:
+
+https://cdn.example.com/videos/inception/master.m3u8
+🔧 Content Service Layers
+
+The Content Service follows a layered architecture:
+
+Client
+   │
+   ▼
+Controller
+   │
+   ▼
+Service
+   │
+   ▼
+Repository
+   │
+   ▼
+PostgreSQL
+Controller
+
+Handles HTTP requests and responses.
+
+Service
+
+Contains the business logic and converts Movie entities into MovieResponse DTOs.
+
+Repository
+
+Uses Spring Data JPA to communicate with the PostgreSQL database.
 
 🔮 Planned Architecture
 
@@ -207,7 +346,11 @@ Java
 Spring Boot
 Spring Data JPA
 Hibernate
-MySQL
+PostgreSQL
 Redis
 Apache Kafka
 ZooKeeper
+AWS S3
+FFmpeg
+HLS
+Docker

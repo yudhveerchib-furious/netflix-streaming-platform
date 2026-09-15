@@ -3,6 +3,7 @@ package com.netflix.content_service.model;
 
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import org.hibernate.annotations.CreationTimestamp;
@@ -40,7 +41,7 @@ public class Movie {
 
     private double rating;
 
-    private double thumbnailUrl;
+    private String thumbnailUrl;
 
     private int durationMinutes;
 

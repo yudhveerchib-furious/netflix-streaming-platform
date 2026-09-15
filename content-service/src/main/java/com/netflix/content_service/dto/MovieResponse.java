@@ -24,7 +24,7 @@ public class MovieResponse {
     private String cast;
     private int releaseYear;
     private double rating;
-    private double thumbnailUrl;
+    private String thumbnailUrl;
     private int durationMinutes;
     private String videoKey;
 
