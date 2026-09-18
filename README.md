@@ -26,9 +26,9 @@ The project is currently under development.
 
 ### In Progress / Planned
 
-- 🚧 Streaming Service
-- 🚧 Redis caching
-- 🚧 Complete end-to-end streaming workflow
+- ✅ Streaming Service
+- ✅ Redis caching
+- ✅ Complete end-to-end streaming workflow
 - 🚧 Frontend video player
 
 ---
@@ -59,7 +59,7 @@ Encoding Service
 Consumes video upload events, downloads videos from S3, processes them using FFmpeg, generates HLS files in multiple qualities, uploads the encoded files back to S3, and publishes encoding completion events.
 
 Streaming Service
-Handles video streaming and provides streaming URLs.
+Handles video streaming, generates presigned S3 URLs, serves signed HLS playlists, and uses Redis for caching.
 
 ⚙️ Infrastructure Setup
 
@@ -473,11 +473,11 @@ The Encoding Service generates multiple video qualities.
 
 Current configurations:
 
-Resolution	Bitrate
-1920x1080	5000 kbps
-1280x720	2800 kbps
-854x480	1200 kbps
-640x360	800 kbps
+Resolution  Bitrate
+1920x1080   5000 kbps
+1280x720    2800 kbps
+854x480 1200 kbps
+640x360 800 kbps
 
 This allows the streaming system to provide different quality levels depending on the client's network and device.
 
